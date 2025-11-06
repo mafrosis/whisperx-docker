@@ -1,0 +1,65 @@
+FROM nvidia/cuda:12.6.2-cudnn-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Australia/Melbourne
+
+# Install system dependencies including Python 3.12
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    build-essential \
+    curl \
+    python3.12 \
+    python3.12-venv \
+    python3.12-dev \
+    python3-distutils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set python3.12 as default
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+
+# Bootstrap pip for Python 3.12 using get-pip.py to avoid distutils issues
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py && \
+    python3.12 /tmp/get-pip.py && rm -f /tmp/get-pip.py
+
+# Install Rust (required for some whisperx deps)
+ENV RUSTUP_VERSION=1.27.1
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
+    sh -s -- -y --default-toolchain stable
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Install PyTorch (aarch64 wheels from PyPI)
+RUN pip install --no-cache-dir \
+    torch==2.7.1 \
+    torchaudio==2.7.1
+
+# Preinstall whisperx deps available on aarch64
+RUN pip install --no-cache-dir \
+    "ctranslate2>=4.5.0" \
+    "faster-whisper>=1.1.1" \
+    "nltk>=3.9.1" \
+    "numpy==2.0.2" \
+    "onnxruntime<1.20,>=1.19" \
+    "pandas<2.3,>=2.2.3" \
+    "av<16.0.0" \
+    "pyannote-audio>=3.3.2,<4.0.0" \
+    "transformers>=4.48.0"
+
+# Install WhisperX 3.5.0 from git, ignoring triton by installing without deps
+RUN pip install --no-cache-dir --no-deps \
+    git+https://github.com/m-bain/whisperx.git@v3.5.0
+
+# Optional scientific deps
+RUN pip install --no-cache-dir \
+    scipy
+
+WORKDIR /app
+
+ENV ORT_LOG_LEVEL=3
+ENV PYTHONWARNINGS="ignore::DeprecationWarning,ignore::UserWarning"
+
+ENTRYPOINT ["whisperx", "--output_format", "txt", "--model", "large-v3", "--compute_type", "float16", "--language", "en", "--diarize", "--min_speakers", "2", "--beam_size", "5"]

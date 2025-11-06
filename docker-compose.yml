@@ -1,0 +1,27 @@
+---
+volumes:
+  huggingface-cache: {}
+  torch-cache: {}
+
+services:
+  whisperx:
+    image: mafrosis/whisperx
+    build: .
+    environment:
+      - HF_TOKEN
+    volumes:
+      - ./:/app
+      - huggingface-cache:/root/.cache/huggingface
+      - torch-cache:/root/.cache/torch
+
+  whisperx-gpu:
+    image: mafrosis/whisperx-gpu
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    environment:
+      - HF_TOKEN
+    volumes:
+      - ./:/app
+      - huggingface-cache:/root/.cache/huggingface
+      - torch-cache:/root/.cache/torch
