@@ -5,7 +5,7 @@ volumes:
 
 services:
   whisperx:
-    image: mafrosis/whisperx
+    image: ghcr.io/mafrosis/whisperx:cpu
     build: .
     environment:
       - HF_TOKEN
@@ -15,7 +15,7 @@ services:
       - torch-cache:/root/.cache/torch
 
   whisperx-gpu:
-    image: mafrosis/whisperx-gpu
+    image: ghcr.io/mafrosis/whisperx:gpu
     build:
       context: .
       dockerfile: Dockerfile.gpu
