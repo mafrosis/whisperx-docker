@@ -32,12 +32,12 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     sh -s -- -y --default-toolchain stable
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Install PyTorch (aarch64 wheels from PyPI)
+# Install PyTorch with CUDA support
 RUN pip install --no-cache-dir \
-    torch==2.7.1 \
-    torchaudio==2.7.1
+    "torch==2.7.1" \
+    "torchaudio==2.7.1"
 
-# Preinstall whisperx deps available on aarch64
+# Install WhisperX dependencies
 RUN pip install --no-cache-dir \
     "ctranslate2>=4.5.0" \
     "faster-whisper>=1.1.1" \

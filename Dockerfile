@@ -14,7 +14,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     sh -s -- -y --default-toolchain 1.80.0
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Preinstall whisperx deps (skip triton on aarch64)
+# Install WhisperX dependencies (triton not needed for CPU-only)
 RUN pip install --no-cache-dir \
     "ctranslate2>=4.5.0" \
     "faster-whisper>=1.1.1" \
@@ -25,8 +25,8 @@ RUN pip install --no-cache-dir \
     "av<16.0.0" \
     "pyannote-audio>=3.3.2,<4.0.0" \
     "transformers>=4.48.0" \
-    "torch>=2.7.1" \
-    "torchaudio>=2.7.1"
+    "torch==2.7.1" \
+    "torchaudio==2.7.1"
 
 # Install WhisperX v3.5.0 without dependencies to avoid triton pull
 RUN pip install --no-cache-dir --no-deps \

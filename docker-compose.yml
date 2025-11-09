@@ -6,22 +6,31 @@ volumes:
 services:
   whisperx:
     image: ghcr.io/mafrosis/whisperx:cpu
-    build: .
+    build:
+      context: .
+      platforms:
+        - linux/amd64
+        - linux/arm64
     environment:
       - HF_TOKEN
     volumes:
       - ./:/app
       - huggingface-cache:/root/.cache/huggingface
       - torch-cache:/root/.cache/torch
+    platform: linux/amd64
 
   whisperx-gpu:
     image: ghcr.io/mafrosis/whisperx:gpu
     build:
       context: .
       dockerfile: Dockerfile.gpu
+      platforms:
+        - linux/amd64
+        - linux/arm64
     environment:
       - HF_TOKEN
     volumes:
       - ./:/app
       - huggingface-cache:/root/.cache/huggingface
       - torch-cache:/root/.cache/torch
+    platform: linux/amd64
