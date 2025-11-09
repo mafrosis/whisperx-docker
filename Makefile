@@ -34,48 +34,66 @@ build-local:
 push: login setup-buildx
 	@echo "Building and pushing images for linux/amd64 and linux/arm64..."
 	docker buildx build \
+		--progress=plain \
 		--platform linux/amd64,linux/arm64 \
 		-t $(IMAGE_CPU) \
 		-f Dockerfile \
 		--push \
+		--provenance=false \
+		--sbom=false \
 		.
 	docker buildx build \
+		--progress=plain \
 		--platform linux/amd64,linux/arm64 \
 		-t $(IMAGE_GPU) \
 		-f Dockerfile.gpu \
 		--push \
+		--provenance=false \
+		--sbom=false \
 		.
 
 # Build and push only amd64 images (for AWS/Linux x86_64 hosts)
 push-amd64: login setup-buildx
 	@echo "Building and pushing images for linux/amd64..."
 	docker buildx build \
+		--progress=plain \
 		--platform linux/amd64 \
 		-t $(IMAGE_CPU) \
 		-f Dockerfile \
 		--push \
+		--provenance=false \
+		--sbom=false \
 		.
 	docker buildx build \
+		--progress=plain \
 		--platform linux/amd64 \
 		-t $(IMAGE_GPU) \
 		-f Dockerfile.gpu \
 		--push \
+		--provenance=false \
+		--sbom=false \
 		.
 
 # Build and push only arm64 images (for macOS/Linux arm64 hosts)
 push-arm64: login setup-buildx
 	@echo "Building and pushing images for linux/arm64..."
 	docker buildx build \
+		--progress=plain \
 		--platform linux/arm64 \
 		-t $(IMAGE_CPU) \
 		-f Dockerfile \
 		--push \
+		--provenance=false \
+		--sbom=false \
 		.
 	docker buildx build \
+		--progress=plain \
 		--platform linux/arm64 \
 		-t $(IMAGE_GPU) \
 		-f Dockerfile.gpu \
 		--push \
+		--provenance=false \
+		--sbom=false \
 		.
 
 # Help
