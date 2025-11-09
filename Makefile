@@ -18,10 +18,10 @@ login:
 	fi
 	@echo "$$GITHUB_TOKEN" | docker login ghcr.io -u $(GITHUB_USER) --password-stdin
 
-# Setup docker buildx for multi-arch builds
+# Setup docker buildx for multi-arch builds  
 setup-buildx:
 	@echo "Setting up docker buildx..."
-	@docker buildx create --name whisperx-builder --use 2>/dev/null || docker buildx use whisperx-builder || docker buildx use default
+	@docker buildx use desktop-linux
 	@docker buildx inspect --bootstrap
 
 # Build for local architecture (macOS arm64)
@@ -54,7 +54,7 @@ push: login setup-buildx
 
 # Build and push only amd64 images (for AWS/Linux x86_64 hosts)
 push-amd64: login setup-buildx
-	@echo "Building and pushing images for linux/amd64..."
+	@echo "Building and pushing CPU image for linux/amd64..."
 	docker buildx build \
 		--progress=plain \
 		--platform linux/amd64 \
@@ -64,6 +64,7 @@ push-amd64: login setup-buildx
 		--provenance=false \
 		--sbom=false \
 		.
+	@echo "Building and pushing GPU image for linux/amd64..."
 	docker buildx build \
 		--progress=plain \
 		--platform linux/amd64 \
@@ -103,12 +104,12 @@ help:
 	@echo "Common targets:"
 	@echo "  make login        - Login to GitHub Container Registry (requires GITHUB_TOKEN)"
 	@echo "  make build-local  - Build both images for local macOS arm64 (no push)"
-	@echo "  make push-amd64   - Build and push for Linux amd64 (AWS/x86_64) [FAST]"
+	@echo "  make push-amd64   - Build and push for Linux amd64 [RECOMMENDED]"
 	@echo "  make push-arm64   - Build and push for Linux/macOS arm64"
-	@echo "  make push         - Build and push for both amd64 and arm64 [SLOW]"
+	@echo "  make push         - Build and push for both amd64 and arm64 [SLOWEST]"
 	@echo ""
 	@echo "Other targets:"
 	@echo "  make setup-buildx - Setup docker buildx for multi-arch builds"
 	@echo ""
 	@echo "Environment variables:"
-	@echo "  GITHUB_TOKEN      - Required for pushing images (get from: https://github.com/settings/tokens)"
+	@echo "  GITHUB_TOKEN           - Required for pushing images (get from: https://github.com/settings/tokens)"
